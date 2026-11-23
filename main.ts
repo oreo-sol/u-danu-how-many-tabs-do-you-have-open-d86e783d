@@ -21,7 +21,12 @@ import { join } from "node:path";
 
 const TEXT = "342";
 
-// Validate: 1-5 characters, only digits 0-9 (so also not only whitespace).
+// Validate the entry gate — all of these must hold, or main.ts throws:
+//   1. The text is UTF-8 encodable (it is written with the "utf8" encoding).
+//   2. It is 1–5 characters long (the quest caps entries at 5 characters).
+//   3. Every character is a digit 0–9 — so it can be neither only
+//      whitespace nor an empty string, and it parses as one integer.
+// The /^\d{1,5}$/ regex encodes gates 2 and 3 in one check.
 if (!/^\d{1,5}$/.test(TEXT)) {
   throw new Error(`Invalid entry: ${JSON.stringify(TEXT)} (must be 1-5 digits)`);
 }
@@ -40,4 +45,7 @@ if (back !== TEXT) {
   );
 }
 
-console.log(`Wrote entry to ${outPath}: ${JSON.stringify(TEXT)}`);
+const byteLength = Buffer.byteLength(TEXT, "utf8");
+console.log(
+  `Wrote entry to ${outPath}: ${JSON.stringify(TEXT)} (${byteLength} bytes, no trailing newline)`,
+);
